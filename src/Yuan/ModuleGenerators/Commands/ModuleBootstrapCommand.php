@@ -1,27 +1,29 @@
-<?php namespace Yuan\ModuleGenerators;
+<?php namespace Yuan\ModuleGenerators\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-class ModuleGeneratorCommand extends Command {
+use Yuan\ModuleGenerators\ModuleGenerator;
+
+class ModuleBootstrapCommand extends Command {
 
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'module:make';
+    protected $name = 'module:bootstrap';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a Module';
+    protected $description = 'Set up base model, controller and service provider';
     /**
      * @var ModuleGenerator
      */
-    private $controllerGenerator;
+    private $moduleGenerator;
 
     /**
      * Create a new command instance.
@@ -41,10 +43,8 @@ class ModuleGeneratorCommand extends Command {
      */
     public function fire()
     {
-        $module = $this->argument('module');
-        $namespace = $this->argument('namespace');
-        $this->moduleGenerator->make($module, $namespace);
-        $this->info("{$module} module has been created successfully");
+        $this->moduleGenerator->bootstrap();
+        $this->info("Base module have been created successfully");
     }
 
     /**
@@ -55,8 +55,7 @@ class ModuleGeneratorCommand extends Command {
     protected function getArguments()
     {
         return array(
-            array('module', InputArgument::REQUIRED, 'model'),
-            array('namespace', InputArgument::OPTIONAL, 'namespace'),
+//            array('example', InputArgument::REQUIRED, 'An example argument.'),
         );
     }
 

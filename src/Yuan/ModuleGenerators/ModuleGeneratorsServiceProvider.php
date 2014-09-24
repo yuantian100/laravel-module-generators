@@ -24,8 +24,38 @@ class ModuleGeneratorsServiceProvider extends ServiceProvider {
 
     public function register()
     {
-        $this->commands('Yuan\ModuleGenerators\ModuleGeneratorCommand');
+        foreach ([
+                     'Bootstrap',
+                     'Generate',
+                 ] as $command)
+        {
+            $this->{"register{$command}Command"}();
+        }
+
     }
+
+    public function registerBootstrapCommand()
+    {
+
+        $this->app['module.bootstrap'] = $this->app->share(function ($app)
+        {
+            return $app->make('Yuan\ModuleGenerators\Commands\ModuleBootstrapCommand');
+
+        });
+        $this->commands('module.bootstrap');
+    }
+
+    public function registerGenerateCommand()
+    {
+
+        $this->app['module.generate'] = $this->app->share(function ($app)
+        {
+            return $app->make('Yuan\ModuleGenerators\Commands\ModuleGenerateCommand');
+
+        });
+        $this->commands('module.generate');
+    }
+
 
     /**
      * Get the services provided by the provider.

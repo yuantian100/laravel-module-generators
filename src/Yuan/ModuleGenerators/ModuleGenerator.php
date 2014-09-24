@@ -1,8 +1,7 @@
 <?php namespace Yuan\ModuleGenerators;
 
-use Config;
+use Illuminate\Config\Repository as Config;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\File;
 
 class ModuleGenerator {
 
@@ -12,12 +11,138 @@ class ModuleGenerator {
     protected $module;
     protected $namespace;
     protected $file;
+    protected $flags;
+    protected $config;
 
-
-    public function __construct(Filesystem $file)
+    public function __construct(Filesystem $file, Config $config)
     {
         $this->file = $file;
+        $this->config = $config;
     }
+
+    public function bootstrap()
+    {
+        $directories = [
+            'Base1/Controllers',
+            'Base1/Models'
+        ];
+        $this->makeControllers('Base1', $directories, 'controller.tpl');
+    }
+
+    public function generate($module)
+    {
+        $directories = [
+            "{$module}/Controllers"
+        ];
+        $this->makeControllers($module, $directories, 'controller.tpl');
+
+        $directories = [
+            "{$module}/Views"
+        ];
+
+        $this->makeViews($module, $directories, 'view.tpl');
+    }
+    public function makeViews($module, $directories, $path){
+
+        // make directories for view
+        $this->makeDirectories($directories);
+        // fetch template content
+        $template = $this->getTemplate($path);
+        // set replace flags
+        $flags['module'] = $module;
+        $flags['namespace'] = 'App\Modules\\' . $module . 'Views';
+        // replace these flags
+        $template = $this->replaceFlags($flags, $template);
+        // set new file path
+        $path = $this->pathToModuleRoot($module) . $module . '/Views/index.blade.php';
+        // create the controller
+        $this->file->put($path, $template);
+
+    }
+
+
+    /**
+     * make a controller
+     *
+     * @param $module
+     * @param $directories
+     * @param $path
+     */
+    public function makeControllers($module, $directories, $path)
+    {
+        // make directories for controller
+        $this->makeDirectories($directories);
+        // fetch template content
+        $template = $this->getTemplate($path);
+        // set replace flags
+        $flags['module'] = $module;
+        $flags['namespace'] = 'App\Modules\\' . $module . 'Controllers';
+        // replace these flags
+        $template = $this->replaceFlags($flags, $template);
+        // set new file path
+        $path = $this->pathToModuleRoot($module) . $module . '/Controllers/' . $module . 'Controller.php';
+        // create the controller
+        $this->file->put($path, $template);
+    }
+
+    /**
+     * replace all flags in template file
+     *
+     * @param $flags
+     * @param $template
+     *
+     * @return mixed
+     */
+    public function replaceFlags($flags, $template)
+    {
+
+        foreach ($flags as $flag => $replacement)
+        {
+
+            $template = $this->replaceFlag($template, $flag, $replacement);
+        }
+
+        return $template;
+    }
+
+    /**
+     * replace a flag in template file
+     *
+     * @param $template
+     * @param $search
+     * @param $replace
+     *
+     * @return mixed
+     */
+    public function replaceFlag($template, $search, $replace)
+    {
+
+        return str_replace("{{{$search}}}", $replace, $template);
+
+    }
+
+    public function getTemplate($path)
+    {
+        return $this->file->get(__DIR__ . '/templates/' . $path);
+    }
+
+
+    /**
+     * Make Directories
+     *
+     * @param array $paths
+     *
+     * @return void
+     */
+    public function makeDirectories(array $paths)
+    {
+        foreach ($paths as $path)
+        {
+            $this->file->makeDirectory(app_path() . '/Modules/' . $path, 0777, true);
+        }
+
+    }
+
 
     private function pathToModuleRoot()
     {
@@ -26,7 +151,7 @@ class ModuleGenerator {
 
     protected function getConfig($config)
     {
-        return Config::get("module-generators::config.{$config}");
+        return $this->config->get("module-generators::config.{$config}");
     }
 
     protected $dirs = [
@@ -98,7 +223,7 @@ class ModuleGenerator {
         $paths = $this->getPaths();
         foreach ($paths as $path)
         {
-            File::makeDirectory($path, 0777, true);
+            $this->file->makeDirectory($path, 0777, true);
         }
 
     }
@@ -107,7 +232,7 @@ class ModuleGenerator {
     {
         $this->makeServiceProvider();
         $this->makeRoute();
-        $this->makeViews();
+//        $this->makeViews();
         $this->makeConfig();
         $this->makeModel();
         $this->makeController();
@@ -115,14 +240,14 @@ class ModuleGenerator {
         $this->makeRepository();
     }
 
-    private function makeViews()
-    {
-        $module = $this->getModule();
-        $path = $this->getPaths()['view'] . '/index.blade.php';
-        $template = $this->file->get($this->getTemplates()['view']);
-        $template = str_replace('{{module}}', $module, $template);
-        $this->file->put($path, $template);
-    }
+//    private function makeViews()
+//    {
+//        $module = $this->getModule();
+//        $path = $this->getPaths()['view'] . '/index.blade.php';
+//        $template = $this->file->get($this->getTemplates()['view']);
+//        $template = str_replace('{{module}}', $module, $template);
+//        $this->file->put($path, $template);
+//    }
 
     public function makeConfig()
     {
