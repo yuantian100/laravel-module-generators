@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Yuan\ModuleGenerators\Exceptions\ModuleExistsException;
 use Yuan\ModuleGenerators\ModuleGenerator;
 
 class ModuleBootstrapCommand extends Command {
@@ -43,8 +44,14 @@ class ModuleBootstrapCommand extends Command {
      */
     public function fire()
     {
-        $this->moduleGenerator->bootstrap();
-        $this->info("Base module have been created successfully");
+        try
+        {
+            $this->moduleGenerator->bootstrap();
+            $this->info("Base module have been created successfully");
+        } catch (ModuleExistsException $e)
+        {
+            $this->info("You already run bootstrap");
+        }
     }
 
     /**
@@ -54,8 +61,7 @@ class ModuleBootstrapCommand extends Command {
      */
     protected function getArguments()
     {
-        return array(
-//            array('example', InputArgument::REQUIRED, 'An example argument.'),
+        return array(//            array('example', InputArgument::REQUIRED, 'An example argument.'),
         );
     }
 

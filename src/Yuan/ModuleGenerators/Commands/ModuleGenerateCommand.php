@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Yuan\ModuleGenerators\Exceptions\ModuleExistsException;
 use Yuan\ModuleGenerators\ModuleGenerator;
 
 class ModuleGenerateCommand extends Command {
@@ -44,10 +45,17 @@ class ModuleGenerateCommand extends Command {
     public function fire()
     {
         $module = $this->argument('module');
-        $this->moduleGenerator->generate($module);
+        try
+        {
+            $this->moduleGenerator->generate($module);
+            $this->info("{$module} module has been created successfully");
+
+        } catch (ModuleExistsException $e)
+        {
+            $this->info("{$module} module already has");
+        }
 //        $namespace = $this->argument('namespace');
 //        $this->moduleGenerator->make($module, $namespace);
-        $this->info("{$module} module has been created successfully");
     }
 
     /**
