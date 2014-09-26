@@ -41,17 +41,22 @@ class ModuleGenerateCommand extends ModuleCommands {
     public function fire()
     {
         $module = $this->argument('module');
-        try
+        if ($this->isValidClassName($module))
         {
-            $namespace = $this->getNamespace();
-            $this->moduleGenerator->generate($module, $namespace);
-            $this->info("{$module} module has been created successfully");
+            try
+            {
+                $namespace = $this->getNamespace();
+                $this->moduleGenerator->generate($module, $namespace);
+                $this->info("{$module} module has been created successfully");
 
-        } catch (ModuleExistsException $e)
+            } catch (ModuleExistsException $e)
+            {
+                $this->info("{$module} module already has");
+            }
+        } else
         {
-            $this->info("{$module} module already has");
+            $this->error('Module can not be crated, because module name is invalid');
         }
-
     }
 
     /**

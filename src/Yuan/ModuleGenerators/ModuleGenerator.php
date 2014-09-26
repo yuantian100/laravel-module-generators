@@ -17,6 +17,11 @@ class ModuleGenerator {
         $this->config = $config;
     }
 
+    /**
+     * Bootstrap base model, controller...
+     *
+     * @param $namespace
+     */
     public function bootstrap($namespace)
     {
         $this->setNamespace($namespace);
@@ -25,6 +30,14 @@ class ModuleGenerator {
         $this->makeBaseModel();
     }
 
+    /**
+     * generate a new module
+     *
+     * @param $module
+     * @param $namespace
+     *
+     * @throws ModuleExistsException
+     */
     public function generate($module, $namespace)
     {
         $this->setNamespace($namespace);
@@ -88,7 +101,6 @@ class ModuleGenerator {
         $module = ucwords($this->getConfig('base_module_name'));
         $filename = $module . 'Controller.php';
         $this->make($module, 'controller_path', 'base_controller_template_path', $filename);
-
     }
 
     public function makeBaseServiceProvider()
@@ -121,40 +133,28 @@ class ModuleGenerator {
         $this->make($module, 'service_provider_path', 'service_provider_template_path', $filename);
     }
 
-
-    /**
-     * make a controller
-     *
-     * @param $module
-     * @param $directories
-     * @param $path
-     */
     public function makeControllers($module)
     {
         $filename = $module . 'Controller.php';
         $this->make($module, 'controller_path', 'controller_template_path', $filename);
     }
 
-
     public function makeViews($module)
     {
         $filename = 'index.blade.php';
         $this->make($module, 'view_path', 'view_template_path', $filename);
-
     }
 
     public function makeModels($module)
     {
         $filename = $module . '.php';
         $this->make($module, 'model_path', 'model_template_path', $filename);
-
     }
 
     public function makeRoute($module)
     {
         $filename = 'router.php';
         $this->make($module, 'route_path', 'route_template_path', $filename);
-
     }
 
     public function makeLang($module)
@@ -208,11 +208,6 @@ class ModuleGenerator {
         return $this->file->get(__DIR__ . '/' . $this->getConfig($type));
     }
 
-
-    public function pathToRoot()
-    {
-        return app_path() . '/Modules/';
-    }
 
     /**
      * replace all flags in template file
@@ -268,12 +263,11 @@ class ModuleGenerator {
     {
 
         return str_replace("{{{$search}}}", $replace, $template);
-
     }
 
 
     /**
-     * Make Directories
+     * Make folders
      *
      * @param array $paths
      *
@@ -285,7 +279,6 @@ class ModuleGenerator {
         {
             $this->makeFolder($path);
         }
-
     }
 
     protected function makeFolder($path)
@@ -295,13 +288,10 @@ class ModuleGenerator {
 
             $this->file->makeDirectory($path, 0777, true);
         }
-
     }
 
     protected function getConfig($config)
     {
         return $this->config->get("module-generators::config.{$config}");
     }
-
-
 }

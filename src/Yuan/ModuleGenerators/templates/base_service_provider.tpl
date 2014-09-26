@@ -2,12 +2,11 @@
 
 use Illuminate\Support\ServiceProvider;
 
-class ModulesServiceProvider extends ServiceProvider {
+class ModuleServiceProvider extends ServiceProvider {
 
     public function register()
     {
-
-        $this->app->register('Fuckjob\Modules\User\UserServiceProvider');
-
+        // add new module service providers here
+        // $this->app->register('');
     }
 }
