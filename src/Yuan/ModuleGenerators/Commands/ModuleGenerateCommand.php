@@ -1,12 +1,11 @@
 <?php namespace Yuan\ModuleGenerators\Commands;
 
-use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Yuan\ModuleGenerators\Exceptions\ModuleExistsException;
 use Yuan\ModuleGenerators\ModuleGenerator;
 
-class ModuleGenerateCommand extends Command {
+class ModuleGenerateCommand extends ModuleCommands {
 
     /**
      * The console command name.
@@ -21,10 +20,7 @@ class ModuleGenerateCommand extends Command {
      * @var string
      */
     protected $description = 'Create a Module';
-    /**
-     * @var ModuleGenerator
-     */
-    private $controllerGenerator;
+
 
     /**
      * Create a new command instance.
@@ -47,15 +43,15 @@ class ModuleGenerateCommand extends Command {
         $module = $this->argument('module');
         try
         {
-            $this->moduleGenerator->generate($module);
+            $namespace = $this->getNamespace();
+            $this->moduleGenerator->generate($module, $namespace);
             $this->info("{$module} module has been created successfully");
 
         } catch (ModuleExistsException $e)
         {
             $this->info("{$module} module already has");
         }
-//        $namespace = $this->argument('namespace');
-//        $this->moduleGenerator->make($module, $namespace);
+
     }
 
     /**
@@ -67,7 +63,6 @@ class ModuleGenerateCommand extends Command {
     {
         return array(
             array('module', InputArgument::REQUIRED, 'model'),
-            array('namespace', InputArgument::OPTIONAL, 'namespace'),
         );
     }
 

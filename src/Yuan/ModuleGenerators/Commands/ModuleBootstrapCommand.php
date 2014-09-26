@@ -1,12 +1,11 @@
 <?php namespace Yuan\ModuleGenerators\Commands;
 
-use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Yuan\ModuleGenerators\Exceptions\ModuleExistsException;
 use Yuan\ModuleGenerators\ModuleGenerator;
 
-class ModuleBootstrapCommand extends Command {
+class ModuleBootstrapCommand extends ModuleCommands {
 
     /**
      * The console command name.
@@ -24,7 +23,7 @@ class ModuleBootstrapCommand extends Command {
     /**
      * @var ModuleGenerator
      */
-    private $moduleGenerator;
+    protected $moduleGenerator;
 
     /**
      * Create a new command instance.
@@ -46,7 +45,8 @@ class ModuleBootstrapCommand extends Command {
     {
         try
         {
-            $this->moduleGenerator->bootstrap();
+            $namespace = $this->getNamespace();
+            $this->moduleGenerator->bootstrap($namespace);
             $this->info("Base module have been created successfully");
         } catch (ModuleExistsException $e)
         {
@@ -61,7 +61,8 @@ class ModuleBootstrapCommand extends Command {
      */
     protected function getArguments()
     {
-        return array(//            array('example', InputArgument::REQUIRED, 'An example argument.'),
+        return array(
+            array('namespace', InputArgument::OPTIONAL, 'the namespace of your project'),
         );
     }
 

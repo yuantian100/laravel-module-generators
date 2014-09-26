@@ -9,6 +9,7 @@ class ModuleGenerator {
     protected $file;
     protected $config;
     protected $flags;
+    protected $namespace;
 
     public function __construct(Filesystem $file, Config $config)
     {
@@ -16,14 +17,17 @@ class ModuleGenerator {
         $this->config = $config;
     }
 
-    public function bootstrap()
+    public function bootstrap($namespace)
     {
+        $this->setNamespace($namespace);
+        $this->makeBaseServiceProvider();
         $this->makeBaseControllers();
         $this->makeBaseModel();
     }
 
-    public function generate($module)
+    public function generate($module, $namespace)
     {
+        $this->setNamespace($namespace);
         $module = ucwords($module);
         if ($this->file->isDirectory(app_path() . '/Modules/' . $module))
         {
@@ -45,65 +49,6 @@ class ModuleGenerator {
         {
             $this->{$type}($module);
         }
-
-    }
-
-    public function getPath($module, $path)
-    {
-        return 'App' . '/Modules/' . $module . '/' . $this->getConfig($path);
-    }
-
-    public function getRealPath($module, $path)
-    {
-        return app_path() . '/Modules/' . $module . '/' . $this->getConfig($path);
-    }
-
-    public function makeRepository($module)
-    {
-        $filename = $module . 'Repository.php';
-        $this->make($module, 'repository_path', 'repository_template_path', $filename);
-    }
-
-    public function makeInterface($module)
-    {
-        $filename = $module . 'Interface.php';
-        $this->make($module, 'interface_path', 'interface_template_path', $filename);
-    }
-
-    public function makeServiceProvider($module)
-    {
-        $filename = $module . 'ServiceProvider.php';
-        $this->make($module, 'service_provider_path', 'service_provider_template_path', $filename);
-    }
-
-    public function makeBaseModel()
-    {
-        $module = ucwords($this->getConfig('base_module_name'));
-        $filename = $module . '.php';
-        $this->make($module, 'model_path', 'base_model_template_path', $filename);
-    }
-
-
-    public function makeBaseControllers()
-    {
-        $module = ucwords($this->getConfig('base_module_name'));
-        $filename = $module . 'Controller.php';
-        $this->make($module, 'controller_path', 'base_controller_template_path', $filename);
-
-    }
-
-
-    /**
-     * make a controller
-     *
-     * @param $module
-     * @param $directories
-     * @param $path
-     */
-    public function makeControllers($module)
-    {
-        $filename = $module . 'Controller.php';
-        $this->make($module, 'controller_path', 'controller_template_path', $filename);
     }
 
     /**
@@ -128,6 +73,66 @@ class ModuleGenerator {
         $path = $folder . '/' . $filename;
         // create the file
         $this->file->put($path, $template);
+    }
+
+    public function makeBaseModel()
+    {
+        $module = ucwords($this->getConfig('base_module_name'));
+        $filename = $module . '.php';
+        $this->make($module, 'model_path', 'base_model_template_path', $filename);
+    }
+
+
+    public function makeBaseControllers()
+    {
+        $module = ucwords($this->getConfig('base_module_name'));
+        $filename = $module . 'Controller.php';
+        $this->make($module, 'controller_path', 'base_controller_template_path', $filename);
+
+    }
+
+    public function makeBaseServiceProvider()
+    {
+        // fetch template content
+        $template = $this->getTemplate('base_service_provider_template_path');
+        // replace flags in template
+        $template = $this->replaceFlag($template, 'app.name', $this->getNamespace());
+        // set new file path
+        $path = app_path() . '/providers/ModulesServiceProvider.php';
+        // create the file
+        $this->file->put($path, $template);
+    }
+
+    public function makeRepository($module)
+    {
+        $filename = $module . 'Repository.php';
+        $this->make($module, 'repository_path', 'repository_template_path', $filename);
+    }
+
+    public function makeInterface($module)
+    {
+        $filename = $module . 'Interface.php';
+        $this->make($module, 'interface_path', 'interface_template_path', $filename);
+    }
+
+    public function makeServiceProvider($module)
+    {
+        $filename = $module . 'ServiceProvider.php';
+        $this->make($module, 'service_provider_path', 'service_provider_template_path', $filename);
+    }
+
+
+    /**
+     * make a controller
+     *
+     * @param $module
+     * @param $directories
+     * @param $path
+     */
+    public function makeControllers($module)
+    {
+        $filename = $module . 'Controller.php';
+        $this->make($module, 'controller_path', 'controller_template_path', $filename);
     }
 
 
@@ -162,6 +167,40 @@ class ModuleGenerator {
     {
         $filename = 'config.php';
         $this->make($module, 'config_path', 'config_template_path', $filename);
+    }
+
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
+    }
+
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * Replace the given string in the given file.
+     *
+     * @param  string $path
+     * @param  string $search
+     * @param  string $replace
+     *
+     * @return void
+     */
+    protected function replaceIn($path, $search, $replace)
+    {
+        $this->file->put($path, str_replace($search, $replace, $this->file->get($path)));
+    }
+
+    public function getPath($module, $path)
+    {
+        return $this->getNamespace() . '/Modules/' . $module . '/' . $this->getConfig($path);
+    }
+
+    public function getRealPath($module, $path)
+    {
+        return app_path() . '/Modules/' . $module . '/' . $this->getConfig($path);
     }
 
     public function getTemplate($type)
@@ -213,12 +252,6 @@ class ModuleGenerator {
     public function changeSlash($content)
     {
         return str_replace('/', '\\', $content);
-    }
-
-
-    public function getOptions($option)
-    {
-        return $this->config->get($option);
     }
 
 
