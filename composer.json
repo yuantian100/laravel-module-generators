@@ -1,6 +1,7 @@
 {
     "name": "yuan/module-generators",
     "description": "",
+    "license": "MIT",
     "authors": [
         {
             "name": "Yuan Tian",
