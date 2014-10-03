@@ -1,5 +1,5 @@
 <?php
-Route::group(array('namespace' => '{{namespace}}'), function ()
+Route::group(array('namespace' => '{{namespace}}\Controllers'), function ()
 {
 
 });

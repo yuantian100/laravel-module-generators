@@ -1,5 +1,6 @@
 <?php
 return [
+    'namespace'                           => 'App',
     'base_module_name'                    => 'Base',
     'base_service_provider_template_path' => 'templates/base_service_provider.tpl',
 
@@ -31,10 +32,8 @@ return [
     'config_path'                         => 'config',
     'config_template_path'                => 'templates/config.tpl',
 
-
     'presenter'                           => 'Presenters',
 
     'event'                               => 'Events',
-
 
 ];
