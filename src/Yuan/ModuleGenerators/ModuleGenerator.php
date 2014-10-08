@@ -91,7 +91,7 @@ class ModuleGenerator {
     public function makeBaseModel()
     {
         $module = ucwords($this->getConfig('base_module_name'));
-        $filename = $module . '.php';
+        $filename = $module . 'Model.php';
         $this->make($module, 'model_path', 'base_model_template_path', $filename);
     }
 
@@ -110,7 +110,7 @@ class ModuleGenerator {
         // replace flags in template
         $template = $this->replaceFlag($template, 'app.name', $this->getNamespace());
         // set new file path
-        $path = app_path() . '/providers/ModulesServiceProvider.php';
+        $path = app_path() . '/Modules/ModulesServiceProvider.php';
         // create the file
         $this->file->put($path, $template);
     }
