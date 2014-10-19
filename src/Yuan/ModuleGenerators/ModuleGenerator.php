@@ -57,7 +57,6 @@ class ModuleGenerator {
             'makeRepository',
             'makeConfig'
         ];
-
         foreach ($types as $type)
         {
             $this->{$type}($module);
@@ -95,7 +94,6 @@ class ModuleGenerator {
         $this->make($module, 'model_path', 'base_model_template_path', $filename);
     }
 
-
     public function makeBaseControllers()
     {
         $module = ucwords($this->getConfig('base_module_name'));
@@ -109,6 +107,8 @@ class ModuleGenerator {
         $template = $this->getTemplate('base_service_provider_template_path');
         // replace flags in template
         $template = $this->replaceFlag($template, 'app.name', $this->getNamespace());
+        // make modules folder
+        $this->makeFolder($this->getModuleBasePath());
         // set new file path
         $path = app_path() . '/Modules/ModulesServiceProvider.php';
         // create the file
@@ -193,11 +193,37 @@ class ModuleGenerator {
         $this->file->put($path, str_replace($search, $replace, $this->file->get($path)));
     }
 
+    /**
+     * Base module path
+     *
+     * @return string
+     */
+    public function getModuleBasePath()
+    {
+        return app_path() . '/Modules/';
+    }
+
+    /**
+     * Module path
+     *
+     * @param $module
+     * @param $path
+     *
+     * @return string
+     */
     public function getPath($module, $path)
     {
         return $this->getNamespace() . '/Modules/' . $module . '/' . $this->getConfig($path);
     }
 
+    /**
+     * Real path for a module
+     *
+     * @param $module
+     * @param $path
+     *
+     * @return string
+     */
     public function getRealPath($module, $path)
     {
         return app_path() . '/Modules/' . $module . '/' . $this->getConfig($path);
@@ -207,7 +233,6 @@ class ModuleGenerator {
     {
         return $this->file->get(__DIR__ . '/' . $this->getConfig($type));
     }
-
 
     /**
      * replace all flags in template file
@@ -222,10 +247,8 @@ class ModuleGenerator {
         $flags = $this->flags($module, $path);
         foreach ($flags as $flag => $replacement)
         {
-
             $template = $this->replaceFlag($template, $flag, $replacement);
         }
-
         return $template;
     }
 
@@ -249,7 +272,6 @@ class ModuleGenerator {
         return str_replace('/', '\\', $content);
     }
 
-
     /**
      * replace a flag in template file
      *
@@ -261,10 +283,8 @@ class ModuleGenerator {
      */
     public function replaceFlag($template, $search, $replace)
     {
-
         return str_replace("{{{$search}}}", $replace, $template);
     }
-
 
     /**
      * Make folders
@@ -285,7 +305,6 @@ class ModuleGenerator {
     {
         if (!$this->file->isDirectory($path))
         {
-
             $this->file->makeDirectory($path, 0777, true);
         }
     }

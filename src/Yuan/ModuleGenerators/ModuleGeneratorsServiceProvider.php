@@ -19,7 +19,6 @@ class ModuleGeneratorsServiceProvider extends ServiceProvider {
     public function boot()
     {
         $this->package('yuan/module-generators');
-
     }
 
     public function register()
@@ -31,31 +30,25 @@ class ModuleGeneratorsServiceProvider extends ServiceProvider {
         {
             $this->{"register{$command}Command"}();
         }
-
     }
 
     public function registerBootstrapCommand()
     {
-
         $this->app['module.bootstrap'] = $this->app->share(function ($app)
         {
             return $app->make('Yuan\ModuleGenerators\Commands\ModuleBootstrapCommand');
-
         });
         $this->commands('module.bootstrap');
     }
 
     public function registerGenerateCommand()
     {
-
         $this->app['module.generate'] = $this->app->share(function ($app)
         {
             return $app->make('Yuan\ModuleGenerators\Commands\ModuleGenerateCommand');
-
         });
         $this->commands('module.generate');
     }
-
 
     /**
      * Get the services provided by the provider.
@@ -66,5 +59,4 @@ class ModuleGeneratorsServiceProvider extends ServiceProvider {
     {
         return array();
     }
-
 }
